@@ -14,16 +14,19 @@ const screen = document.querySelector('.screen');
 
 window.addEventListener('click', setInput);
 btnEqu.addEventListener('click', equate);
-// btnPer.addEventListener('click', appendPeriod);
-btnClr.addEventListener('click', clearScreen);
+btnPer.addEventListener('click', appendPoint);
+btnClr.addEventListener('click', clear);
 btnDel.addEventListener('click', deleteNum);
 
 let firstOperand = '';
 let secondOperand = '';
-let operator = null;
+let currentOperator = null;
 
 btnNum.forEach(button => {
-    button.addEventListener('click', () => appendNumber(button.textContent));
+    button.addEventListener('click', () => {
+        if (screen.textContent == 'Error') clear();
+        appendNumber(button.textContent)
+    });
 })
 
 btnOpt.forEach(button => {
@@ -31,34 +34,42 @@ btnOpt.forEach(button => {
         setOperator(button.textContent);
     });
 })
-
 function appendNumber(n) {
     if (screen.textContent == '0') resetScreen();
     screen.textContent += n;
 }
-
-function clearScreen() {
+function appendPoint() {
+    if (screen.textContent == '') screen.textContent = '0';
+    if (screen.textContent.includes('.')) return;
+    screen.textContent += '.';
+}
+function clear() {
     screen.textContent = '0';
-    let firstOperand = '';
-    let secondOperand = '';
-    let operator = null;
+    firstOperand = '';
+    secondOperand = '';
+    currentOperator = null;
 }
-
 function deleteNum() {
-    screen.textContent = screen.textContent.toString().slice(0, -1)
+    if (screen.textContent == '' || screen.textContent == 'Error') screen.textContent = '0';
+    screen.textContent = screen.textContent.toString().slice(0, -1);
 }
-
 function equate() {
+    if (currentOperator === null) return;
+    if (currentOperator === '÷' && screen.textContent === '0') return screen.textContent = 'Error';
 
+    secondOperand = screen.textContent;
+    screen.textContent = operate(currentOperator, firstOperand, secondOperand);
+    currentOperator = null;
 }
-
 function resetScreen() {
     screen.textContent = '';
 }
 
 function setOperator(operator) {
+    if (currentOperator !== null) equate();
     firstOperand = screen.textContent;
-    operator = operator;
+    currentOperator = operator;
+    screen.textContent = "";
 }
 
 function setInput(e) {
@@ -67,15 +78,12 @@ function setInput(e) {
 function add(a, b) {
     return a + b;
 }
-
 function sub(a, b) {
     return a - b;
 }
-
 function mul(a, b) {
     return a * b;
 }
-
 function div(a, b) {
     return a / b;
 }
